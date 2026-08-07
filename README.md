@@ -14,7 +14,7 @@ that setup.
 
 ## Beamo Flasher CLI
 
-Install [Beamo Flasher](https://github.com/BeamoINT/beamo-flasher) on Windows with:
+Install [Beamo Flasher](https://beamo.tech/flasher-download) on Windows with:
 
 ```powershell
 scoop bucket add beamoint https://github.com/BeamoINT/scoop-bucket
