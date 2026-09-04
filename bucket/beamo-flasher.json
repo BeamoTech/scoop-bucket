@@ -1,11 +1,11 @@
 {
-  "version": "0.5.14",
-  "description": "CLI for flashing verified removable-media images.",
+  "version": "0.5.21",
+  "description": "CLI for Beamo Flasher and Beamo Pi — verified removable-media flashing.",
   "homepage": "https://beamo.tech/flasher-download",
   "license": "MIT",
   "depends": "nodejs-lts",
-  "url": "https://github.com/BeamoINT/beamo-flasher-releases/releases/download/v0.5.14/beamo-flasher-cli-v0.5.14.zip",
-  "hash": "d6247d4022bd90a622f51fe3f8130f859b898a2a5b7905642696235ed1ac27e0",
+  "url": "https://github.com/BeamoINT/beamo-flasher-releases/releases/download/v0.5.21/beamo-flasher-cli-v0.5.21.zip",
+  "hash": "34910fa75c9044fa2e7e3f41cbf22fcd438c964615fbee303d2a1cf00f31f581",
   "bin": [
     [
       "bflash.cmd",
@@ -14,15 +14,24 @@
     [
       "beamo-flasher.cmd",
       "beamo-flasher"
+    ],
+    [
+      "bpi.cmd",
+      "bpi"
+    ],
+    [
+      "beamo-pi.cmd",
+      "beamo-pi"
     ]
   ],
   "checkver": {
-    "github": "https://github.com/BeamoINT/beamo-flasher-releases"
+    "github": "https://github.com/BeamoINT/beamo-flasher-releases",
+    "regex": "releases/tag/(?<tag>v(?<version>[\\d.]+)(?:-unsigned)?)"
   },
   "autoupdate": {
-    "url": "https://github.com/BeamoINT/beamo-flasher-releases/releases/download/v$version/beamo-flasher-cli-v$version.zip",
+    "url": "https://github.com/BeamoINT/beamo-flasher-releases/releases/download/$matchTag/beamo-flasher-cli-v$version.zip",
     "hash": {
-      "url": "https://github.com/BeamoINT/beamo-flasher-releases/releases/download/v$version/SHA256SUMS.txt",
+      "url": "https://github.com/BeamoINT/beamo-flasher-releases/releases/download/$matchTag/SHA256SUMS.txt",
       "regex": "([a-fA-F0-9]{64})\\s+beamo-flasher-cli-v$version\\.zip"
     }
   }
