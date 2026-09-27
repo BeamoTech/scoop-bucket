@@ -1,0 +1,51 @@
+name: Verify Claudex Scoop package
+
+on:
+  workflow_dispatch:
+    inputs:
+      previous_version:
+        description: Prior published version to test an upgrade from
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+# Manual release check only. This public bucket uses the zero-billed GitHub
+# Windows runner while Blacksmith access for this repository is unproven.
+jobs:
+  install:
+    runs-on: windows-2025
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install Scoop and published Claudex manifest
+        env:
+          PREVIOUS_VERSION: ${{ inputs.previous_version }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $manifest = Get-Content bucket/claudex.json -Raw | ConvertFrom-Json
+          if ([string] $manifest.version -notmatch '^\d+\.\d+\.\d+$') { throw 'Invalid current version' }
+          if ($env:PREVIOUS_VERSION -and $env:PREVIOUS_VERSION -notmatch '^\d+\.\d+\.\d+$') { throw 'Invalid prior version' }
+
+          Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+          Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+          $env:PATH = "$env:USERPROFILE\scoop\shims;$env:PATH"
+          if (-not (Get-Command scoop -ErrorAction SilentlyContinue)) { throw 'Scoop installation failed' }
+
+          scoop bucket add beamoint https://github.com/BeamoINT/scoop-bucket
+          if ($LASTEXITCODE -ne 0) { throw 'Failed to add the published bucket' }
+          if ($env:PREVIOUS_VERSION) {
+            scoop install "claudex@$env:PREVIOUS_VERSION"
+            if ($LASTEXITCODE -ne 0) { throw 'Failed to install the prior Claudex version' }
+            if ((& claudex --package-version).Trim() -ne $env:PREVIOUS_VERSION) { throw 'Prior install version mismatch' }
+            scoop update claudex
+            if ($LASTEXITCODE -ne 0) { throw 'Failed to upgrade Claudex' }
+          } else {
+            scoop install beamoint/claudex
+            if ($LASTEXITCODE -ne 0) { throw 'Failed to install Claudex' }
+          }
+          if ((& claudex --package-version).Trim() -ne [string] $manifest.version) { throw 'Installed version does not match the manifest' }
