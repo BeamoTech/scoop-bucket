@@ -1,6 +1,6 @@
 # BeamoINT Scoop bucket
 
-Install [Claudex](https://github.com/BeamoINT/Claudex) on Windows with:
+Install [Claudex](https://github.com/BeamoTech/Claudex) on Windows with:
 
 ```powershell
 scoop bucket add beamoint https://github.com/BeamoINT/scoop-bucket
