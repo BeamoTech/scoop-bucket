@@ -12,6 +12,10 @@ Claudex's automatic first-run setup installs Codex and Claude Code when they
 are missing. Scoop installs the Node.js and jq runtime dependencies used by
 that setup.
 
+Maintainers: after updating the manifest, run the manual
+[Claudex Scoop verification](.github/workflows/verify-claudex.yml) on `main`.
+Set `previous_version` to test the upgrade from the prior release on Windows.
+
 ## Beamo Flasher CLI
 
 Install [Beamo Flasher](https://beamo.tech/flasher-download) on Windows with:
