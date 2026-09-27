@@ -22,6 +22,8 @@ jobs:
         shell: powershell
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
       - name: Install Scoop and published Claudex manifest
         env:
           PREVIOUS_VERSION: ${{ inputs.previous_version }}
@@ -39,9 +41,21 @@ jobs:
           scoop bucket add beamoint https://github.com/BeamoINT/scoop-bucket
           if ($LASTEXITCODE -ne 0) { throw 'Failed to add the published bucket' }
           if ($env:PREVIOUS_VERSION) {
-            scoop install "claudex@$env:PREVIOUS_VERSION"
+            $priorText = $null
+            foreach ($commit in (& git log --format=%H -- bucket/claudex.json)) {
+              $candidate = (& git show "${commit}:bucket/claudex.json") -join "`n"
+              if ((($candidate | ConvertFrom-Json).version) -eq $env:PREVIOUS_VERSION) {
+                $priorText = $candidate
+                break
+              }
+            }
+            if (-not $priorText) { throw "No manifest found for $env:PREVIOUS_VERSION" }
+            $bucketManifest = Join-Path $env:USERPROFILE 'scoop\buckets\beamoint\bucket\claudex.json'
+            [IO.File]::WriteAllText($bucketManifest, $priorText, [Text.UTF8Encoding]::new($false))
+            scoop install beamoint/claudex
             if ($LASTEXITCODE -ne 0) { throw 'Failed to install the prior Claudex version' }
             if ((& claudex --package-version).Trim() -ne $env:PREVIOUS_VERSION) { throw 'Prior install version mismatch' }
+            Copy-Item -LiteralPath bucket/claudex.json -Destination $bucketManifest -Force
             scoop update claudex
             if ($LASTEXITCODE -ne 0) { throw 'Failed to upgrade Claudex' }
           } else {
